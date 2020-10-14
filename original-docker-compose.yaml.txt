@@ -1,0 +1,197 @@
+version: "2.4"
+# The server profiles used in this example are part of this base project
+
+# x-common-params:
+#   environment:
+#     PING_IDENTITY_DEVOPS_TAG: latest
+#     PING_IDENTITY_DEVOPS_USER: jdasilva@pingidentity.com
+
+# secrets:
+#   dev_ops_key:
+#     external: true
+
+# x-common-params:  
+#   env_file: .env
+
+services:
+  # x-common-params:
+  #   environment: 
+  #     DG81_TRG_IN_BASE: /_devOps/dg81-lab-setup-project/dg81-lab-setup/server-profiles/
+  #     DG81_TRG_OUT_BASE: /_devOps/docker-volumes/
+
+  # pingaccess:
+  #   image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingaccess:${PING_IDENTITY_DEVOPS_TAG}
+  #   command: wait-for pingfederate:9031 -t 420 -- entrypoint.sh start-server
+  #   environment:
+  #     - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+  #     - SERVER_PROFILE_PATH=baseline/pingaccess
+  #   env_file:
+  #     # Configuration file created when setup.sh (Getting-started project root directory) is first run to source
+  #     # devops user/key details for evaluation licenses and for docker image/git tags
+  #     - ${HOME}/.pingidentity/devops
+  #   ports:
+  #     - "443:443"
+  #     - "9000:9000"
+  #   networks:
+  #     - pingnet-dmz
+  #   volumes:
+  #     - pingaccess-out:/opt/out
+  #   #  - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingaccess:/opt/in
+
+  pingdatagovernance:
+    container_name: pingdatagovernance
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernance@sha256:09665fdfaf7437c8b6359c4db9003ee2483678cf00d2905415c0f10675c86e92
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernance:latest
+    command: wait-for pingdirectory:389 -t 400 -- entrypoint.sh start-server
+    # environment:
+    #   - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+    #   - SERVER_PROFILE_PATH=baseline/pingdatagovernance
+      # - SERVER_PROFILE_PATH=baseline/pingdatagovernance-8.1.0.0
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ports:
+      # - "6080:80"
+      - "6443:443"
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdatagovernance:/opt/in:delegated
+      - ${DG81_TRG_OUT_BASE}pingdatagovernance-out:/opt/out:delegated
+    #  - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingdatagovernance:/opt/in
+
+  pingfederate:
+    container_name: pingfederate
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingfederate@sha256:eef3bf2d480b8225c8781edd5c11edb2a906859748aaa3f5be1f801673d411bb
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingfederate:latest
+    command: wait-for pingdirectory:389 -t 400 -- entrypoint.sh start-server
+    environment:
+      # - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      # - SERVER_PROFILE_PATH=baseline/pingfederate
+      - PF_ENGINE_PORT=8031
+      - PF_ADMIN_PORT=8999
+      - PF_ENGINE_PUBLIC_PORT=8031
+      # - VERBOSE=true
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ports:
+      - "8031:8031"
+      - "8999:8999"
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    volumes:
+      # - pingfederate-out:/opt/out
+      - ${DG81_TRG_OUT_BASE}pingfederate-out:/opt/out:delegated
+      - ${DG81_TRG_IN_BASE}pingfederate:/opt/in:delegated
+    #  - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingfederate:/opt/in
+
+  pingdirectory:
+    container_name: pingdirectory
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdirectory@sha256:9717b4970abcdd0194a63fa2b89fd1c9c1c58cdadd64a814579048233ea30f8d
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdirectory:latest
+    # environment:
+    #   - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+    #   - SERVER_PROFILE_PATH=baseline/pingdirectory
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    ports:
+      - "4636:636"
+      - "4443:443"
+      - "4389:389"
+    networks:
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_OUT_BASE}pingdirectory-out:/opt/out:delegated
+      - ${DG81_TRG_IN_BASE}pingdirectory:/opt/in:delegated
+    #  - ${HOME}/projects/devops/pingidentity-server-profiles/baseline/pingdirectory:/opt/in
+
+  pingdatagovernancepap:
+    container_name: pingdatagovernancepap
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernancepap@sha256:b11d242341cc5739f492c0cd0b818c79a1ba16fe3c8f11181f8e15c36053216b
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernancepap:latest
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernancepap:2006.1-alpine-8.1.0.0
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernancepap@sha256:0e61ac7b2ad72d01604b1f16eb35157a4db4cd7f20532a7f6770259122eec901
+    # command: wait-for pingdatagovernance:443 -t 500 -- entrypoint.sh start-server
+    environment:
+      # - SERVER_PROFILE_URL=https://github.com/pingidentity/pingidentity-server-profiles.git
+      # - SERVER_PROFILE_PATH=pdg-pap-integration/pingdatagovernancepap
+      - HTTPS_PORT=5443
+      # - STARTUP_FOREGROUND_OPTS="--detach"
+      # - VERBOSE=true
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    ports:
+      - "5443:5443"
+    networks:
+      - pingnet-dmz
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdatagovernancepap:/opt/in:delegated
+      - ${DG81_TRG_OUT_BASE}pingdatagovernancepap-out:/opt/out:delegated
+    #  - ${HOME}/projects/devops/pingidentity-server-profiles/pdg-pap-integration/pingdatagovernancepap:/opt/in
+
+  pingdataconsole:
+    container_name: pingdataconsole
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdataconsole@sha256:0c463edc7acf68c03aa0563dcd890fa36a77a8a5ab89c3b31d84e057306b0f1b
+    # image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdataconsole:latest
+    ports:
+      - "7443:8443"
+    networks:
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdataconsole:/opt/in:delegated
+
+networks:
+    pingnet-internal:
+    pingnet-dmz:
+
+#
+# Defined to use external volumes.
+#   The paths specified must exist on the disk and Docker on the Mac must have the base path
+#   listed in the resources as shared files.
+#
+#   This provides easy exist to the output from the images to copy configuration.
+#
+# volumes:
+  # pingaccess-out:
+  # pingdatagovernance-out:
+  #   driver: local
+  #   driver_opts: 
+  #     type: none
+  #     device: ${DG81_TRG_OUT_BASE}pingdatagovernance-out
+  #     o: bind
+  # pingdatagovernancepap-out:
+  #   driver: local
+  #   driver_opts: 
+  #     type: none
+  #     device: ${DG81_TRG_OUT_BASE}pingdatagovernancepap-out
+  #     o: bind
+  # pingfederate-out:
+  # pingdirectory-out:
+  #   driver: local
+  #   driver_opts: 
+  #     type: none
+  #     device: ${DG81_TRG_OUT_BASE}pingdirectory-out
+  #     o: bind
+  # pingfederate-out:
+  #   driver: local
+  #   driver_opts: 
+  #     type: none
+  #     device: ${DG81_TRG_OUT_BASE}pingfederate-out
+  #     o: bind
+    # external: true
+  # pingcentral-out:

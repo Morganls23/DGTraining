@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/AddFilter",
+    "definitions": {
+        "AddFilter": {
+            "name": "Add Filter",
+            "description": "Adds a filter to SCIM search queries.",
+            "templateVersion": 1,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "const": "add-filter"
+                },
+                "description": {
+                    "type": "string",
+                    "default": "Policy advice that can be used to add administrator-required filters to SCIM search queries. This advice provides a way to put restrictions on the resources that may be returned to an application that is otherwise allowed to use SCIM search requests. The filters specified by this advice will be AND'ed with any filter that is included in the SCIM request. The payload for this advice is a string representing a valid SCIM filter. This filter may contain multiple clauses separated by AND or OR. If multiple instances of Add Filter Advice are returned from policy, they are AND'ed together to form a single filter that will be passed with the SCIM request. If the original SCIM request body also included a filter, that filter is AND'ed with the filter generated from policy to form the final filter value."
+                },
+                "payload": {
+                    "type": "string",
+                    "default": "Example: employeeType eq \"intern\""
+                }
+            }
+        }
+    }
+}

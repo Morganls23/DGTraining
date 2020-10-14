@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/ModifyQuery",
+  "definitions": {
+    "ModifyQuery": {
+      "name": "Modify Query",
+      "description": "Modifies the query string of an outgoing request.",
+      "templateVersion": 1,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "const": "modify-query"
+        },
+        "description": {
+          "type": "string",
+          "default": "Modifies the query string of the request sent to an API server. The payload for this advice is a JSON object. The keys are the names of the query parameters which must be modified, and the values are the new values of the parameters. A value may be null, in which case the query parameter is removed from the request; a string, in which case the parameter is set to that specific value; or an array of strings, in which case the parameter is set to all of the values in the array. If the query parameter already exists on the request, it will be overwritten; if it does not, it will be added."
+        },
+        "payload": {
+          "type": "string",
+          "default": "Example: {\"parameter1\": \"value\", \"parameter2\": \"value\"}"
+        }
+      }
+    }
+  }
+}

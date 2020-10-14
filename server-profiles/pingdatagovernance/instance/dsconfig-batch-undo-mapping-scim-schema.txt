@@ -1,0 +1,10 @@
+dsconfig delete-store-adapter-mapping --type-name "ScimUsers" --mapping-name description
+dsconfig delete-store-adapter-mapping --type-name "ScimUsers" --mapping-name lastName
+dsconfig delete-store-adapter-mapping --type-name "ScimUsers" --mapping-name firstName
+dsconfig delete-store-adapter-mapping --type-name "ScimUsers" --mapping-name name
+dsconfig delete-scim-resource-type --type-name "ScimUsers"
+dsconfig delete-scim-attribute --schema-name urn:lab:scim:schema --attribute-name description
+dsconfig delete-scim-attribute --schema-name urn:lab:scim:schema --attribute-name lastName
+dsconfig delete-scim-attribute --schema-name urn:lab:scim:schema --attribute-name firstName
+dsconfig delete-scim-attribute --schema-name urn:lab:scim:schema --attribute-name name
+dsconfig delete-scim-schema --schema-name urn:lab:scim:schema

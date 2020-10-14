@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/ExcludeAttributes",
+    "definitions": {
+        "ExcludeAttributes": {
+            "name": "Exclude Attributes",
+            "description": "Specifies attributes that must be excluded from a JSON response.",
+            "templateVersion": 1,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "const": "exclude-attributes"
+                },
+                "description": {
+                    "type": "string",
+                    "default": "Policy advice that specifies attributes that must be excluded from a JSON response. The payload for this advice is one or more JSONPaths; either a single path, or a JSON Array of JSON Strings containing the paths. Each path represents the attributes of the response body which are to be removed from the response. If an attribute is removed, this also implies that all its descendants are removed. A single JSONPath may represent multiple attributes; all of them will be removed."
+                },
+                "payload": {
+                    "type": "string",
+                    "default": "Example: [\"attribute1\", \"attribute2\"]"
+                }
+            }
+        }
+    }
+}

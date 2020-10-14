@@ -1,0 +1,105 @@
+version: "2.4"
+# The server profiles used in this example are part of this base project will
+# be stored locally on the drive
+#
+# Using specific images for PingDataGovernance-PAP this goes back a few
+# versions because of issue with image on profile loading for newer versions.
+#   See: https://jira.pingidentity.com/browse/GDO-422
+#
+# These images will use local disk for the server profiles and also a local
+# disk output as that needs to be adjusted and reviewed during the training.
+
+services:
+  pingdatagovernance:
+    container_name: pingdatagovernance
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernance@sha256:09665fdfaf7437c8b6359c4db9003ee2483678cf00d2905415c0f10675c86e92
+    command: wait-for pingdirectory:389 -t 400 -- entrypoint.sh start-server
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ports:
+      - "6443:443"
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdatagovernance:/opt/in:delegated
+      - ${DG81_TRG_OUT_BASE}pingdatagovernance-out:/opt/out:delegated
+
+  pingfederate:
+    container_name: pingfederate
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingfederate@sha256:eef3bf2d480b8225c8781edd5c11edb2a906859748aaa3f5be1f801673d411bb
+    command: wait-for pingdirectory:389 -t 400 -- entrypoint.sh start-server
+    environment:
+      - PF_ENGINE_PORT=8031
+      - PF_ADMIN_PORT=8999
+      - PF_ENGINE_PUBLIC_PORT=8031
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ports:
+      - "8031:8031"
+      - "8999:8999"
+    networks:
+      - pingnet-dmz
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_OUT_BASE}pingfederate-out:/opt/out:delegated
+      - ${DG81_TRG_IN_BASE}pingfederate:/opt/in:delegated
+
+  pingdirectory:
+    container_name: pingdirectory
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdirectory@sha256:9717b4970abcdd0194a63fa2b89fd1c9c1c58cdadd64a814579048233ea30f8d
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    ports:
+      - "4636:636"
+      - "4443:443"
+      - "4389:389"
+    networks:
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_OUT_BASE}pingdirectory-out:/opt/out:delegated
+      - ${DG81_TRG_IN_BASE}pingdirectory:/opt/in:delegated
+
+# For PAP the external and internal ports need to align
+  pingdatagovernancepap:
+    container_name: pingdatagovernancepap
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdatagovernancepap@sha256:0e61ac7b2ad72d01604b1f16eb35157a4db4cd7f20532a7f6770259122eec901
+    environment:
+      - HTTPS_PORT=5443
+    env_file:
+      - ${HOME}/.pingidentity/devops
+    ulimits:
+      nproc:
+        soft: 16384
+        hard: 16384
+      nofile:
+        soft: 65535
+        hard: 65535
+    ports:
+      - "5443:5443"
+    networks:
+      - pingnet-dmz
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdatagovernancepap:/opt/in:delegated
+      - ${DG81_TRG_OUT_BASE}pingdatagovernancepap-out:/opt/out:delegated
+
+  pingdataconsole:
+    container_name: pingdataconsole
+    image: ${PING_IDENTITY_DEVOPS_REGISTRY}/pingdataconsole@sha256:0c463edc7acf68c03aa0563dcd890fa36a77a8a5ab89c3b31d84e057306b0f1b
+    ports:
+      - "7443:8443"
+    networks:
+      - pingnet-internal
+    volumes:
+      - ${DG81_TRG_IN_BASE}pingdataconsole:/opt/in:delegated
+
+networks:
+    pingnet-internal:
+    pingnet-dmz:

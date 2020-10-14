@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/ModifyAttributes",
+    "definitions": {
+        "ModifyAttributes": {
+            "name": "Modify Attributes",
+            "description": "Modifies the attributes of a JSON request or response body.",
+            "templateVersion": 1,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "const": "modify-attributes"
+                },
+                "description": {
+                    "type": "string",
+                    "default": "Advice that allows a policy writer to modify attributes of a JSON request or response body based on policy decisions. The payload for this advice is a JSON object. Each key/value pair is interpreted as an attribute modification on the request or response body of the request being authorized. For each pair, the key is a JSONPath pointing to the attribute to be modified, and the value is the value to set the attribute to. The value can be any valid JSON value (including a complex value such as an object or array)."
+                },
+                "payload": {
+                    "type": "string",
+                    "default": "Example: {\"attribute1\": \"value\", \"attribute2\": \"value\"}"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/DeniedReason",
+    "definitions": {
+        "DeniedReason": {
+            "name": "Denied Reason",
+            "description": "Specifies an error message containing the reason for denying a request.",
+            "templateVersion": 1,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "const": "denied-reason"
+                },
+                "description": {
+                    "type": "string",
+                    "default": "Advice that allows a policy writer to provide an error message containing the reason that a request has been denied."
+                },
+                "payload": {
+                    "type": "string",
+                    "default": "Example: { \"status\": 403, \"message\": \"error_code\", \"detail\":\"Human-readable error message\"}"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,743 @@
+{
+	"info": {
+		"_postman_id": "6403c3be-1858-41c2-aa22-a02ee0fd2997",
+		"name": "DG8.1 Training",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 Get Authz Code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d7a9d4be-bf37-40d7-b1b1-1a177f65661c",
+						"exec": [
+							"if (pm.response.code == 302) {",
+							"    pm.test(\"Get inital code\", function () {",
+							"        var response = pm.response.headers.get(\"Location\");",
+							"        console.log(response);",
+							"        var res = response.match(\".*code=(.*)\");",
+							"        console.log(res);",
+							"        var code = res[1];",
+							"        console.log(code);",
+							"        pm.collectionVariables.set(\"dg81trg_authzCode\", code);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e6e6c1ee-cd7a-4ea7-82f1-47b117949c21",
+						"exec": [
+							"/* const jar = pm.cookies.jar();",
+							"console.log('In pre-request script');",
+							"// the variables are not resvoled",
+							"console.log('URL: ' + pm.request.url)",
+							"//So I had to get the variable",
+							"const url = pm.environment.get('PostmanAuthUrl')",
+							"console.log('URL: ' + url);",
+							"",
+							"jar.unset(url, 'PF.PERSISTENT', function (error) {",
+							"    console.log('error delete PF cookie: ' + error);",
+							"    jar.unset(url, 'PF.PERSISTENT', function (error) {",
+							"        console.log('error delete PF.PERSISTENT cookie: ' + error);",
+							"    });",
+							"});",
+							"*/"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_pfHttpBaseUrl}}{{dg81trg_pfAuthzEndpoint}}?response_type=code&client_id={{dg81trg_authClientId}}&redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback&pf.username=user.1&pf.pass=2FederateM0re&scope=",
+					"host": [
+						"{{dg81trg_pfHttpBaseUrl}}{{dg81trg_pfAuthzEndpoint}}"
+					],
+					"query": [
+						{
+							"key": "response_type",
+							"value": "code"
+						},
+						{
+							"key": "client_id",
+							"value": "{{dg81trg_authClientId}}"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback"
+						},
+						{
+							"key": "pf.username",
+							"value": "user.1"
+						},
+						{
+							"key": "pf.pass",
+							"value": "2FederateM0re"
+						},
+						{
+							"key": "scope",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 Get Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5deb2ab3-6413-4eff-9800-7bb3c2b7f2d1",
+						"exec": [
+							"if (pm.response.code == 200) {",
+							"    pm.test(\"Get inital access token\", function () {",
+							"        var response = pm.response.json();",
+							"        pm.collectionVariables.set(\"dg81trg_accessToken\", response.access_token);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "{{dg81trg_authzCode}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "https://oauth.pstmn.io/v1/callback",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{dg81trg_authClientId}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{dg81trg_pfHttpBaseUrl}}{{dg81trg_pfTokenEndpoint}}",
+					"host": [
+						"{{dg81trg_pfHttpBaseUrl}}{{dg81trg_pfTokenEndpoint}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 Get Users From SCIM Endpoint",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}/Users",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}"
+					],
+					"path": [
+						"Users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 Get Specific User From SCIM Endpoint",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}/Users/47c7be45-0ce5-3105-8ea8-fc3c39c47f91",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}"
+					],
+					"path": [
+						"Users",
+						"47c7be45-0ce5-3105-8ea8-fc3c39c47f91"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 Create User with SCIM",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "561f4d75-fc08-40c9-8efe-f483d6b701ef",
+						"exec": [
+							"var counter = new Number(pm.collectionVariables.get('dg81trg_uidCounter')) + 1;",
+							"console.log('counter is: ' + counter);",
+							"pm.collectionVariables.set('dg81trg_uidCounter', counter);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f2d868d9-c7c5-4c57-a7a3-939591b66a8f",
+						"exec": [
+							"if (!(pm.response.code > 200 && pm.response.code < 299 )) {",
+							"    var counter = new Number(pm.collectionVariables.get('dg81trg_uidCounter')) - 1;",
+							"    console.log('counter is: ' + counter);",
+							"    pm.collectionVariables.set('dg81trg_uidCounter', counter);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "SpecialValue",
+						"type": "text",
+						"value": "{{dg81trg_authzCode}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\": [\"user.{{dg81trg_uidCounter}}\"],\n    \"givenName\": [ \"Gn-{{dg81trg_uidCounter}}\" ],\n    \"sn\": [\"Sn-{{dg81trg_uidCounter}}\"],\n    \"cn\": [\"Gn-{{dg81trg_uidCounter}} Sn-{{dg81trg_uidCounter}}\"],\n    \"objectClass\": [\n        \"top\",\n        \"person\",\n        \"organizationalPerson\",\n        \"inetOrgPerson\"\n    ],\n\n    \"schemas\": [\n        \"urn:pingidentity:schemas:store:2.0:UserStoreAdapter\"\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}/Users",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgScim2Endpoint}}"
+					],
+					"path": [
+						"Users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06a Consent definitions direct to PingDirectory",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2FederateM0re",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "uid=Consent Admin,ou=people,dc=example,dc=com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}/definitions",
+					"host": [
+						"{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}"
+					],
+					"path": [
+						"definitions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06b Consent consents direct to PingDirectory",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2FederateM0re",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "uid=Consent Admin,ou=people,dc=example,dc=com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}/consents",
+					"host": [
+						"{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}"
+					],
+					"path": [
+						"consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 Consent definitions direct through PingDataGovernance",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2FederateM0re",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "uid=Consent Admin,ou=people,dc=example,dc=com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}/definitions",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}"
+					],
+					"path": [
+						"definitions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 Get consents direct through PingDataGovernance",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}/consents",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}"
+					],
+					"path": [
+						"consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09a Add Consent for User director to Directory",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "2FederateM0re",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "uid=Consent Admin,ou=people,dc=example,dc=com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"accepted\",\n    \"definition\": {\n        \"id\": \"email\",\n        \"version\": \"1.0\",\n        \"locale\": \"en-US\"\n    },\n    \"titleText\": \"Share your email address\",\n    \"dataText\": \"Your email address\",\n    \"purposeText\": \"Join Mailing List\",\n    \"data\": {\n        \"email\": \"true@true\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}/consents",
+					"host": [
+						"{{dg81trg_pdHttpBaseUrl}}{{dg81trg_pdConsentEndpoint}}"
+					],
+					"path": [
+						"consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09b Add Consent for User director to DG",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"accepted\",\n    \"definition\": {\n        \"id\": \"email\",\n        \"version\": \"1.0\",\n        \"locale\": \"en-US\"\n    },\n    \"titleText\": \"Share your email address\",\n    \"dataText\": \"Your email address\",\n    \"purposeText\": \"Join Mailing List\",\n    \"data\": {\n        \"email\": \"true@true\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}/consents",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}{{dg81trg_dgConsentEndpoint}}"
+					],
+					"path": [
+						"consents"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 PDP API Call to Create Project",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/xacml+json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xacml+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Request\": {\n        \"AccessSubject\": [{\n            \"Id\": \"domain\",\n            \"Attribute\": [{\n                \"AttributeId\":\"domain\",\n                \"Value\":\"Project Managers\"\n            }]\n        }],\n        \"Action\": [{\n            \"Id\": \"action-create\",\n            \"Attribute\": [{\n                \"AttributeId\": \"action\",\n                \"Value\": \"Create Project\"\n            }]\n        }],\n        \"Resource\": [{\n            \"Id\": \"service\",\n            \"Attribute\": [{\n                \"AttributeId\": \"service\",\n                \"Value\": \"PMapp\"\n            }]\n        }],\n        \"Environment\": [{\n            \"Id\": \"attr-userid\",\n            \"Attribute\": [\n                {\n                    \"AttributeId\": \"attribute:PMapp User Id\",\n                    \"Value\": \"user.0\"\n                },\n                {\n                    \"AttributeId\": \"attribute:Employee roles\",\n                    \"Value\": \"[Project Manager, Project Admin]\"\n                }\n            ]\n        }],\n        \"Category\": [],\n        \"MultiRequests\": {\n            \"RequestReference\": [{\n                \"ReferenceId\": [\n                    \"domain\",\n                    \"action-create\",\n                    \"service\",\n                    \"attr-userid\"\n                ]\n            }]\n        }\n    }\n}"
+				},
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}/pdp",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}"
+					],
+					"path": [
+						"pdp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "99 Validate Token via Introspection",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "pdgRsClient",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "2Federate",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic cGFfcnM6MkZlZGVyYXRl"
+					}
+				],
+				"url": {
+					"raw": "{{dg81trg_pfHttpBaseUrl}}/as/introspect.oauth2?token={{dg81trg_accessToken}}&token_type_hint=access_token",
+					"host": [
+						"{{dg81trg_pfHttpBaseUrl}}"
+					],
+					"path": [
+						"as",
+						"introspect.oauth2"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}"
+						},
+						{
+							"key": "token_type_hint",
+							"value": "access_token"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "99 Do a Get to PDP API",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}/pdp",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}"
+					],
+					"path": [
+						"pdp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "99 Do a Get to PDP API",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{dg81trg_accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xacml+json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/xacml+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{dg81trg_dgHttpBaseUrl}}/pdp",
+					"host": [
+						"{{dg81trg_dgHttpBaseUrl}}"
+					],
+					"path": [
+						"pdp"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "accessToken",
+				"value": "twpr0rHwpe8Z54xdHrvoUeRRrElD",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "Bearer",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "70b827f1-280f-45aa-b35b-6dddeca28a48",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c39c6afb-3071-4473-92f8-8f8392da092b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "19a381b1-1e71-49be-9b0c-221a261d7783",
+			"key": "dg81trg_dgScim2Endpoint",
+			"value": "/scim/v2"
+		},
+		{
+			"id": "98f8deea-5da3-437a-9b5f-627411de61d0",
+			"key": "dg81trg_dgConsentEndpoint",
+			"value": "/consent"
+		},
+		{
+			"id": "dee73b89-38f8-43b3-8b54-3f330f1bdb70",
+			"key": "dg81trg_pdConsentEndpoint",
+			"value": "/consent/v1"
+		},
+		{
+			"id": "36955afd-6a63-464e-8a0f-d573cb219b91",
+			"key": "dg81trg_pfAuthzEndpoint",
+			"value": "/as/authorization.oauth2"
+		},
+		{
+			"id": "74c4fe34-dc69-4160-8a63-6546e987c1af",
+			"key": "dg81trg_pfTokenEndpoint",
+			"value": "/as/token.oauth2"
+		},
+		{
+			"id": "7d787e43-b112-49c0-9950-721f33586d7e",
+			"key": "dg81trg_dgHttpBaseUrl",
+			"value": "https://localhost:6443"
+		},
+		{
+			"id": "608feb8d-0742-4541-af80-df21a1ad0664",
+			"key": "dg81trg_pdHttpBaseUrl",
+			"value": "https://localhost:4443"
+		},
+		{
+			"id": "4da57482-1ef4-4260-bb86-c2ae7561ebfe",
+			"key": "dg81trg_pfHttpBaseUrl",
+			"value": "https://localhost:8031"
+		},
+		{
+			"id": "ef55d5d0-913b-4959-ae88-cbe7dd9e56b7",
+			"key": "dg81trg_authClientId",
+			"value": "authClient"
+		},
+		{
+			"id": "58e01f54-b159-4170-8a9f-e0aafb39b337",
+			"key": "dg81trg_authzCode",
+			"value": ""
+		},
+		{
+			"id": "40e0b85e-cf42-4d59-ae73-b20505a4d9fe",
+			"key": "dg81trg_accessToken",
+			"value": ""
+		},
+		{
+			"id": "73e82ea2-08d9-434a-931e-74fae16fa1ee",
+			"key": "dg81trg_uidCounter",
+			"value": "1000"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

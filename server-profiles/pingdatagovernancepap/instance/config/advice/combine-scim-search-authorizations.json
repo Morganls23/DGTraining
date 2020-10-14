@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/CombineSCIMSearchAuthorizations",
+  "definitions": {
+    "CombineSCIMSearchAuthorizations": {
+      "name": "Combine SCIM Search Authorizations",
+      "description": "Directs PingDataGovernance to process the current SCIM search response using an optimized authorization mode.",
+      "templateVersion": 1,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "const": "combine-scim-search-authorizations"
+        },
+        "description": {
+          "type": "string",
+          "default": "Policy advice that directs PingDataGovernance to process the current SCIM search response using an alternate authorization mode. If this advice is present in a policy decision for a search operation, then SCIM search results will be processed as a group using a single policy operation with the action 'search-results'."
+        },
+        "payload": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    }
+  }
+}

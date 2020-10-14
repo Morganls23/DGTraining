@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# do nothing hook to override the one in the build
+echo "Do nothing..."
+rm /opt/out/instance/admin-point-application/run/admin-point-application.pid
+echo "Do nothing...remove pid"

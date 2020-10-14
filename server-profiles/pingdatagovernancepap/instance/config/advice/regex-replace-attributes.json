@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/RegexReplaceAttributes",
+  "definitions": {
+    "RegexReplaceAttributes": {
+      "name": "Regex Replace Attributes",
+      "description": "Finds and replaces attributes of a JSON request or response body using regular expressions.",
+      "templateVersion": 1,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "const": "regex-replace-attributes"
+        },
+        "description": {
+          "type": "string",
+          "default": "Advice that allows a policy writer to search for attributes of a request or response using a regular expression, and replace them with a new value. The payload for this advice is either a JSON object or an array of JSON objects. Each object represents a single replacement operation, and has up to four keys: \"regex\", \"replace\", \"path\", and \"flags\". Only \"regex\" and \"replace\" are required. \"regex\" represents the regular expression used to find attribute values to be replaced, while \"replace\" represents the regex replacement string used to replace the attribute values with a new value. Optionally, \"path\" is a JSONPath representing the node(s) to start searching under, and \"flags\" is a string containing the regex flags to be used. Recognized flags are \"i\" for case-insensitive matching, \"l\" to interpret the \"regex\" value as a literal string, and \"c\" to perform \"canonical equivalence\" matching. Any portion of the attribute value that matches the regular expression provided in the \"regex\" field is replaced in accordance with the provided replacement string. If multiple substrings within the attribute value match the regular expression, all occurrences will be replaced. The regular expression and replacement string must be valid as described in the API documentation for the java.util.regex.Pattern class, including support for capture groups. For example, given a body of {\"id\": 5, \"username\": \"jsmith\", \"description\": \"Has a registered ID number of '123-45-6789'.\", \"secrets\": {\"description\": \"Has an SSN of '987-65-4321.\"}} and a payload of {\"path\": \"$.secrets\", \"regex\": \"(\\\\\\\\d{3}-\\\\\\\\d{2})-\\\\\\\\d{4}\", \"replace\": \"$1-XXXX\"}, the resulting body will be {\"id\": 5, \"username\": \"jsmith\", \"description\": \"Has a registered ID number of '123-45-6789'.\", \"secrets\": {\"description\": \"Has an SSN of '987-65-XXXX.\"}}."
+        },
+        "payload": {
+          "type": "string",
+          "default": "Example: {\"regex\": \"^value(\\\\\\\\d+)$\", \"replace\": \"value $1\", \"path\": \"$.secret\", \"flags\": \"i\"}"
+        }
+      }
+    }
+  }
+}

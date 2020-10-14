@@ -1,0 +1,13 @@
+ID=00076676
+WSTrustSTS=true
+OAuth=true
+SaasProvisioning=true
+Product=PingFederate
+Version=10.1
+EnforcementType=3
+Tier=Free
+IssueDate=2020-09-03
+ExpirationDate=2020-11-03
+DeploymentMethod=Traditional
+SignCode=FF07
+Signature=302C02141F95D77C36ABA9754CC64DDF9F952146C41FD7F002142A84F1F77A0C36DFAD9847261F85FA035C352EAD

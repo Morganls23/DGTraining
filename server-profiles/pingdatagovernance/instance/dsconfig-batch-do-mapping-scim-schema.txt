@@ -1,0 +1,10 @@
+dsconfig create-scim-schema --schema-name urn:lab:scim:schema --set "display-name:Lab Sample SCIM Schema"
+dsconfig create-scim-attribute --schema-name urn:lab:scim:schema --attribute-name name --set required:true --set case-exact:true --set multi-valued:true
+dsconfig create-scim-attribute --schema-name urn:lab:scim:schema --attribute-name firstName --set multi-valued:true
+dsconfig create-scim-attribute --schema-name urn:lab:scim:schema --attribute-name lastName --set multi-valued:true
+dsconfig create-scim-attribute --schema-name urn:lab:scim:schema --attribute-name description --set multi-valued:true
+dsconfig create-scim-resource-type --type-name "ScimUsers" --type mapping --set enabled:true --set endpoint:ScimUsers --set primary-store-adapter:UserStoreAdapter --set core-schema:urn:lab:scim:schema
+dsconfig create-store-adapter-mapping --type-name "ScimUsers" --mapping-name name --set scim-resource-type-attribute:name --set store-adapter-attribute:cn
+dsconfig create-store-adapter-mapping --type-name "ScimUsers" --mapping-name firstName --set scim-resource-type-attribute:firstName --set store-adapter-attribute:givenName
+dsconfig create-store-adapter-mapping --type-name "ScimUsers" --mapping-name lastName --set scim-resource-type-attribute:lastName --set store-adapter-attribute:sn
+dsconfig create-store-adapter-mapping --type-name "ScimUsers" --mapping-name description --set scim-resource-type-attribute:description --set store-adapter-attribute:description

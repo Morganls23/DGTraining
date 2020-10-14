@@ -1,0 +1,12 @@
+ID=00076673
+PDPAPI=true
+Product=PingDataGovernance with Symphonic
+Version=8.1
+EnforcementType=3
+Tier=Free
+IssueDate=2020-09-03
+ExpirationDate=2020-11-03
+DeploymentMethod=Traditional
+Name=PingDataGovernance with Symphonic-8.1-Production
+SignCode=FF03
+Signature=302C021461FCF50DC6F438B87817D6D94F5F1851B542927002144A6F3D57BEEDD91C4A91E082C8D4BBEC11955E43

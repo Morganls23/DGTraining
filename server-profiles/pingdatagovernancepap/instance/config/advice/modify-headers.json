@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/ModifyHeaders",
+  "definitions": {
+    "ModifyHeaders": {
+      "name": "Modify Headers",
+      "description": "Modifies the headers of an incoming request or outgoing response.",
+      "templateVersion": 1,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "code": {
+          "const": "modify-headers"
+        },
+        "description": {
+          "type": "string",
+          "default": "Modifies the headers of an incoming request or outgoing response. The payload for this advice is a JSON object. The keys are the names of the headers to set, and the values are the new values of the headers. A value may be null, which will remove the header; a string, which will set the header to that value; or an array of strings, which will set the header to all of those values. If the header already exists, it will be overwritten; if it does not exist, it will be added (unless the value is null). If a payload value is an array of strings and the header supports multiple values, such as \"Accept\", PingDataGovernance repeats the header for each string in the array. If a payload value is an array of strings and the header does not support multiple values, such as \"Content-Type\", PingDataGovernance sends the last string in the array."
+        },
+        "payload": {
+          "type": "string",
+          "default": "Example: {\"Accept-Language\": \"en-US\", \"Accept\": [\"application/json\", \"application/xml\"], \"Origin\": null}"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/FilterResponse",
+    "definitions": {
+        "FilterResponse": {
+            "name": "Filter Response",
+            "description": "Directs PingDataGovernance to iteratively invoke policy over each item of a JSON array that is contained within an API response.",
+            "templateVersion": 1,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "code": {
+                    "const": "filter-response"
+                },
+                "description": {
+                    "type": "string",
+                    "default": "Policy advice that directs PingDataGovernance to iteratively invoke policy over each item of a JSON array that is contained within an API response. This advice is intended to allow policies, when presented with a request to permit or deny a multi-valued response body, to require that a separate policy request be made to determine whether the client is permitted access to each individual resource that is returned in a JSON array. On each recursive policy request, if policy returns a DENY decision then the array node in question will be removed from the response. If the policy request returns a PERMIT decision with additional advice, then that advice will be fulfilled in the context of the recursive request. For example, this would allow policy to decide for each array item whether to exclude or obfuscate particular attributes. For a response object containing complex data including arrays of arrays, it is possible to use this advice type to recursively descend through the JSON content of the response. The advice may enforce a maximum depth for such recursive usage. There may also be performance ramifications as the total number of policy requests increases. NOTE: This advice is not supported for SCIM searches."
+                },
+                "payload": {
+                    "type": "string",
+                    "default": "Example: {\"Path\": \"JSONPath to array to be filtered\", \"Action\": \"Value to pass as the action parameter on subsequent policy requests\", \"Service\": \"Value to pass as the service parameter on subsequent policy requests\", \"ResourceType\": \"Type of object contained by each JSON node in the array,\"}"
+                }
+            }
+        }
+    }
+}
